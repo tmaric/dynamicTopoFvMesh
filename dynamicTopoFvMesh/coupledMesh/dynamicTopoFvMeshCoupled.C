@@ -345,7 +345,7 @@ void dynamicTopoFvMesh::executeLoadBalancing
         return;
     }
 
-    bool enabled = readBool(balanceDict.lookup("enabled"));
+    Switch enabled = balanceDict.get<Switch>("enabled");
 
     if (!enabled)
     {
@@ -353,7 +353,7 @@ void dynamicTopoFvMesh::executeLoadBalancing
     }
 
     // Read interval
-    label interval = readLabel(balanceDict.lookup("interval"));
+    label interval = balanceDict.get<label>("interval");
 
     // Are we at the interval?
     if ((interval < 0) || (time().timeIndex() % interval != 0))
@@ -426,7 +426,7 @@ void dynamicTopoFvMesh::executeLoadBalancing
 
     // Calculate a merge-distance
     const boundBox& box = polyMesh::bounds();
-    scalar mergeTol = readScalar(balanceDict.lookup("mergeTol"));
+    scalar mergeTol = balanceDict.get<scalar>("mergeTol");
 
     // Compute mergeDist
     scalar mergeDist = mergeTol * box.mag();
@@ -481,7 +481,7 @@ void dynamicTopoFvMesh::executeLoadBalancing
     }
 
     // Initialize the mesh distribution engine
-    fvMeshDistribute distributor(*this, mergeDist);
+    fvMeshDistribute distributor(*this); // , mergeDist); TODO: check. TM.
 
     // Re-distribute mesh according to new decomposition
     distributor.distribute(cellDistribution);
@@ -615,7 +615,9 @@ void dynamicTopoFvMesh::initProcessorPriority()
                 for (label i = 0; i < Pstream::nProcs(); i++)
                 {
                     // Specify a random index to shuffle
-                    label j = randomizer.integer(0, Pstream::nProcs() - 1);
+                    // TODO: check, TM.
+                    //label j = randomizer.integer(0, Pstream::nProcs() - 1);
+                    label j = randomizer.globalPosition<label>(0, Pstream::nProcs() - 1);
 
                     Foam::Swap(procPriority_[i], procPriority_[j]);
                 }
@@ -1091,8 +1093,8 @@ void dynamicTopoFvMesh::readCoupledPatches()
             const dictionary& dictI = dIter().dict();
 
             // Lookup the master / slave patches
-            word masterPatch = dictI.lookup("master");
-            word slavePatch = dictI.lookup("slave");
+            word masterPatch = dictI.get<word>("master");
+            word slavePatch = dictI.get<word>("slave");
 
             // Determine patch indices
             label mPatch = boundary.findPatchID(masterPatch);
@@ -1115,7 +1117,7 @@ void dynamicTopoFvMesh::readCoupledPatches()
                 // Check whether patches are associated with zones.
                 Switch specifyZones
                 (
-                    dictI.lookup("specifyZones")
+                    dictI.get<Switch>("specifyZones")
                 );
 
                 label mZone = -1, sZone = -1;
@@ -1126,12 +1128,12 @@ void dynamicTopoFvMesh::readCoupledPatches()
 
                     mZone = faceZones.findZoneID
                     (
-                        dictI.lookup("masterZone")
+                        dictI.get<word>("masterZone")
                     );
 
                     sZone = faceZones.findZoneID
                     (
-                        dictI.lookup("slaveZone")
+                        dictI.get<word>("slaveZone")
                     );
                 }
 
@@ -1370,10 +1372,10 @@ void dynamicTopoFvMesh::moveCoupledSubMeshes()
         //  - Specify non-valid boundary to avoid globalData creation
         mesh.resetPrimitives
         (
-            xferCopy(rcMap.oldPointBuffer()),
-            Xfer<faceList>::null(),
-            Xfer<labelList>::null(),
-            Xfer<labelList>::null(),
+            autoPtr<pointField>(new pointField(rcMap.oldPointBuffer())),
+            autoPtr<faceList>(new faceList()),
+            autoPtr<labelList>(new labelList()),
+            autoPtr<labelList>(new labelList()),
             patchSizes,
             patchStarts,
             false
@@ -4752,7 +4754,7 @@ void dynamicTopoFvMesh::handleCoupledPatches
         );
 
         // Set subMesh patch maps
-        mapper_->setSubMeshPatchMaps(xferMove(subMeshPointMaps));
+        mapper_->setSubMeshPatchMaps(subMeshPointMaps);
 
         if (debug > 3)
         {
@@ -6802,13 +6804,13 @@ void dynamicTopoFvMesh::buildProcessorPatchMesh
                 time().timeName(),
                 time()
             ),
-            xferCopy(cMap.pointBuffer()),
-            xferCopy(cMap.oldPointBuffer()),
-            xferCopy(cMap.edges()),
-            xferCopy(cMap.faces()),
-            xferCopy(cMap.faceEdges()),
-            xferCopy(cMap.owner()),
-            xferCopy(cMap.neighbour()),
+            cMap.pointBuffer(),
+            std::move(cMap.oldPointBuffer()),
+            cMap.edges(),
+            std::move(const_cast<faceList&>(cMap.faces())), //FIXME: boom... TM
+            cMap.faceEdges(),
+            std::move(const_cast<labelList&>(cMap.owner())),
+            std::move(const_cast<labelList&>(cMap.neighbour())),
             bdyFaceStarts,
             bdyFaceSizes,
             bdyEdgeStarts,
@@ -7449,13 +7451,13 @@ void dynamicTopoFvMesh::buildProcessorCoupledMaps()
                     time().timeName(),
                     time()
                 ),
-                xferCopy(cMap.pointBuffer()),
-                xferCopy(cMap.oldPointBuffer()),
-                xferCopy(cMap.edges()),
-                xferCopy(cMap.faces()),
-                xferCopy(cMap.faceEdges()),
-                xferCopy(cMap.owner()),
-                xferCopy(cMap.neighbour()),
+                cMap.pointBuffer(),
+                std::move(cMap.oldPointBuffer()),
+                cMap.edges(),
+                std::move(const_cast<faceList&>(cMap.faces())), //FIXME: boom... TM
+                cMap.faceEdges(),
+                std::move(const_cast<labelList&>(cMap.owner())),
+                std::move(const_cast<labelList&>(cMap.neighbour())),
                 faceStarts,
                 faceSizes,
                 edgeStarts,
@@ -8524,11 +8526,11 @@ void dynamicTopoFvMesh::initFieldTransfers
         // If the commsType is nonBlocking,
         // temporarily change to blocking comms to avoid
         // parallel communication in pointBoundaryMesh
-        bool nonBlocking = (Pstream::defaultCommsType == Pstream::nonBlocking);
+        bool nonBlocking = (Pstream::defaultCommsType == UPstream::commsTypes::nonBlocking);
 
         if (nonBlocking)
         {
-            Pstream::defaultCommsType = Pstream::blocking;
+            Pstream::defaultCommsType = UPstream::commsTypes::blocking;
         }
 
         forAll(procIndices_, pI)
@@ -8539,7 +8541,7 @@ void dynamicTopoFvMesh::initFieldTransfers
 
         if (nonBlocking)
         {
-            Pstream::defaultCommsType = Pstream::nonBlocking;
+            Pstream::defaultCommsType = UPstream::commsTypes::nonBlocking;
         }
     }
 

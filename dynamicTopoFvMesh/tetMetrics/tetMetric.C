@@ -73,10 +73,9 @@ tetMetric::New
             << exit(FatalError);
     }
 
-    metricPointMemberFunctionTable::iterator mfIter =
-        metricPointMemberFunctionTablePtr_->find(metricName);
+    auto* mfPtr = metricPointMemberFunctionTable(metricName);
 
-    if (mfIter == metricPointMemberFunctionTablePtr_->end())
+    if (! mfPtr) 
     {
         FatalErrorIn
         (
@@ -88,7 +87,7 @@ tetMetric::New
             << exit(FatalError);
     }
 
-    return mfIter();
+    return *mfPtr;
 }
 
 } // End namespace Foam

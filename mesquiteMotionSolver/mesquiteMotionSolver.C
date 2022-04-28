@@ -34,6 +34,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "polyMesh.H"
 
+#include "regIOobject.H"
 #include "tetrahedron.H"
 #include "matchPoints.H"
 #include "DimensionedField.H"
@@ -87,9 +88,9 @@ mesquiteMotionSolver::mesquiteMotionSolver
     nSweeps_(1),
     surfInterval_(1),
     relax_(1.0),
-    fvpDict_(0),
-    basePoints_(0),
-    boundaryConditions_(0),
+    fvpDict_(),
+    basePoints_(),
+    boundaryConditions_(),
     oldVolume_(0.0)
 {
     // Read options from the dictionary
@@ -125,9 +126,9 @@ mesquiteMotionSolver::mesquiteMotionSolver
     nSweeps_(1),
     surfInterval_(1),
     relax_(1.0),
-    fvpDict_(0),
-    basePoints_(0),
-    boundaryConditions_(0),
+    fvpDict_(),
+    basePoints_(),
+    boundaryConditions_(),
     oldVolume_(0.0)
 {
     // Read options from the dictionary
@@ -151,7 +152,7 @@ void mesquiteMotionSolver::parWrite
 {
     OPstream::write
     (
-        Pstream::blocking,
+        UPstream::commsTypes::blocking,
         toID,
         reinterpret_cast<const char*>(&data),
         sizeof(label)
@@ -168,7 +169,7 @@ void mesquiteMotionSolver::parRead
 {
     IPstream::read
     (
-        Pstream::blocking,
+        UPstream::commsTypes::blocking,
         fromID,
         reinterpret_cast<char*>(&data),
         sizeof(label)
@@ -186,7 +187,7 @@ void mesquiteMotionSolver::parWrite
 {
     OPstream::write
     (
-        Pstream::nonBlocking,
+        UPstream::commsTypes::nonBlocking,
         toID,
         reinterpret_cast<const char*>(&data[0]),
         data.size()*sizeof(Type)
@@ -204,7 +205,7 @@ void mesquiteMotionSolver::parRead
 {
     IPstream::read
     (
-        Pstream::nonBlocking,
+        UPstream::commsTypes::nonBlocking,
         fromID,
         reinterpret_cast<char*>(&data[0]),
         data.size()*sizeof(Type)
@@ -231,8 +232,8 @@ void mesquiteMotionSolver::readOptions()
 
         // Check for existence of base points
         IOobject baseIO("basePoints", Mesh_.time().timeName(), Mesh_);
-
-        if (baseIO.headerOk())
+        
+        if (baseIO.typeHeaderOk<pointVectorField>())
         {
             basePoints_.reset
             (
@@ -270,7 +271,10 @@ void mesquiteMotionSolver::readOptions()
             );
 
             // Initialize with mesh points
-            basePoints_().internalField() = Mesh_.points();
+            // basePoints_().internalField() = Mesh_.points();
+            pointVectorField& basePoints = basePoints_.ref();
+            vectorField& primBasePoints = basePoints.ref();
+            primBasePoints = Mesh_.points();
         }
 
         boundaryConditions_.reset
@@ -289,13 +293,12 @@ void mesquiteMotionSolver::readOptions()
             )
         );
     }
-    else
-    if (optionsDict.found("fixedValuePatches"))
+    else if (optionsDict.found("fixedValuePatches"))
     {
         // Check for existence of fixedValuePatches
         IOobject fvpIO("fixedValuePatches", Mesh_.time().timeName(), Mesh_);
 
-        if (fvpIO.headerOk())
+        if (fvpIO.typeHeaderOk<IOdictionary>())
         {
             fvpDict_.reset
             (
@@ -430,8 +433,8 @@ void mesquiteMotionSolver::readOptions()
                 const dictionary& dictI = dIter().dict();
 
                 // Lookup the master / slave patches
-                word masterPatch = dictI.lookup("master");
-                word slavePatch  = dictI.lookup("slave");
+                word masterPatch = dictI.get<word>("master");
+                word slavePatch  = dictI.get<word>("slave");
 
                 // Determine patch indices
                 label mPatch = boundary.findPatchID(masterPatch);
@@ -931,7 +934,7 @@ void mesquiteMotionSolver::readOptions()
         default:
         {
             // Simply copy the pointer
-            objFunction_ = composite[0];
+            objFunction_.ref() = composite[0];
 
             break;
         }
@@ -4864,7 +4867,7 @@ void mesquiteMotionSolver::prepareEdgeConstants
     }
 
     // Fetch the type of edge constant
-    const word type = optionsDict.lookup("nonUniformEdgeConstant");
+    const word type = optionsDict.get<word>("nonUniformEdgeConstant");
 
     // Define available types
     const char* typeNames[] =
@@ -5005,7 +5008,7 @@ tmp<pointField> mesquiteMotionSolver::curPoints() const
 {
     tmp<pointField> tcurPoints(refPoints_);
 
-    motionSolver::twoDCorrectPoints(tcurPoints());
+    motionSolver::twoDCorrectPoints(tcurPoints.ref());
 
     return tcurPoints;
 }

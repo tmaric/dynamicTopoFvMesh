@@ -21,9 +21,11 @@ fi
 
 ./AllwmakeLnInclude
 
-wmake libso customPointPatchFields
-wmake libso mesquiteMotionSolver
-wmake libso dynamicTopoFvMesh
+# TODO: enable
+# wmake libso customPointPatchFields
+
+wmake -with-bear libso mesquiteMotionSolver
+wmake -with-bear libso dynamicTopoFvMesh
 
 (cd fluxCorrector; ./Allwmake)
 

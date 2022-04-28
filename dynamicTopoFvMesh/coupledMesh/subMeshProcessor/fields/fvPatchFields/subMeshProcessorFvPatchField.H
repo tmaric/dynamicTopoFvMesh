@@ -178,43 +178,43 @@ public:
             //- Is all data available
             virtual bool ready() const;
 
-            //- Initialise neighbour matrix update
-            virtual void initInterfaceMatrixUpdate
+            //- Update result field based on interface functionality
+            virtual void updateInterfaceMatrix
             (
-                scalarField& result,
-                const scalarField& psiInternal,
+                solveScalarField& result,
+                const bool add,
+                const lduAddressing& lduAddr,
+                const label patchId,
+                const solveScalarField& psiInternal,
                 const scalarField& coeffs,
-                const direction cmpt,
+                const direction,
                 const Pstream::commsTypes commsType
-            ) const;
+            ) const 
+            {
+              ::Foam ::FatalError(
+                  (__PRETTY_FUNCTION__),
+                  "/home/tm/Projects/research/openfoam/dynamicTopoFvMesh/"
+                  "dynamicTopoFvMesh/coupledMesh/subMeshProcessor/fields/"
+                  "fvPatchFields/subMeshProcessorFvPatchField.H",
+                  194)
+                  << "Not implemented" << ::Foam ::abort(FatalError);
+              ;
+            }
 
             //- Update result field based on interface functionality
             virtual void updateInterfaceMatrix
             (
-                scalarField& result,
-                const scalarField& psiInternal,
-                const scalarField& coeffs,
-                const direction cmpt,
+                Field<Type>&,
+                const bool add,
+                const lduAddressing& lduAddr,
+                const label patchId,
+                const Field<Type>&,
+                const scalarField&,
                 const Pstream::commsTypes commsType
-            ) const;
-
-            //- Initialise neighbour matrix update
-            virtual void initInterfaceMatrixUpdate
-            (
-                Field<Type>& result,
-                const Field<Type>& psiInternal,
-                const scalarField& coeffs,
-                const Pstream::commsTypes commsType
-            ) const;
-
-            //- Update result field based on interface functionality
-            virtual void updateInterfaceMatrix
-            (
-                Field<Type>& result,
-                const Field<Type>& psiInternal,
-                const scalarField& coeffs,
-                const Pstream::commsTypes commsType
-            ) const;
+            ) const
+            {
+                NotImplemented;
+            } 
 
         //- Processor coupled interface functions
 

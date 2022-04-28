@@ -582,7 +582,8 @@ inline void dynamicTopoFvMesh::setFlip(const label fIndex)
 {
     if (fIndex < nOldFaces_)
     {
-        labelHashSet::iterator it = flipFaces_.find(fIndex);
+        //labelHashSet::iterator it = flipFaces_.find(fIndex);
+        auto it = flipFaces_.find(fIndex);
 
         if (it == flipFaces_.end())
         {

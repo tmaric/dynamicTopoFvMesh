@@ -36,29 +36,7 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template<>
-void subMeshProcessorFvPatchField<scalar>::initInterfaceMatrixUpdate
-(
-    scalarField&,
-    const scalarField&,
-    const scalarField&,
-    const direction,
-    const Pstream::commsTypes commsType
-) const;
-
-
-template<>
-void subMeshProcessorFvPatchField<scalar>::updateInterfaceMatrix
-(
-    scalarField& result,
-    const scalarField&,
-    const scalarField& coeffs,
-    const direction,
-    const Pstream::commsTypes commsType
-) const;
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// TODO: remove file, was specializing mfunctions that weren't implemented. TM
 
 } // End namespace Foam
 

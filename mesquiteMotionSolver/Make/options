@@ -1,4 +1,9 @@
 EXE_INC = \
+    -fpermissive \
+    -Wno-deprecated \
+    -Wno-deprecated-declarations \
+    -Wno-deprecated-copy \
+    -Wno-maybe-uninitialized \
     -I$(MESQUITE_DIR)/include \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \

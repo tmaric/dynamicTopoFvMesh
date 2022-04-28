@@ -42,8 +42,8 @@ void mapPointFields
 )
 {
     // Local typedefs
-    typedef typename FieldType::InternalField InternalFieldType;
-    typedef typename FieldType::GeometricBoundaryField BoundaryFieldType;
+    typedef typename FieldType::Internal InternalFieldType;
+    typedef typename FieldType::Boundary BoundaryFieldType;
 
     // Fetch the list of registered fields
     const List<FieldType*>& fieldList = mapper.pointFieldList<FieldType>();
@@ -61,8 +61,8 @@ void mapPointFields
         }
 
         // Fetch reference to fields
-        InternalFieldType& iField = field->internalField();
-        BoundaryFieldType& bField = field->boundaryField();
+        InternalFieldType& iField = const_cast<InternalFieldType&>(field->internalField());
+        BoundaryFieldType& bField = field->boundaryFieldRef();
 
         // Map internal field
         const topoPointMapper& internalMapper = mapper.pointMap();
@@ -134,8 +134,8 @@ void conservativeMapVolFields(const topoMapper& mapper)
         fMap.mapInternalField
         (
             field.name(),
-            mapper.gradient<gradVolType>(field.name()).internalField(),
-            field.internalField()
+            mapper.gradient<gradVolType>(field.name()).primitiveFieldRef(),
+            field.primitiveFieldRef()
         );
 
         // Map patch fields
@@ -144,7 +144,7 @@ void conservativeMapVolFields(const topoMapper& mapper)
             bMap[patchI].mapFvPatchField
             (
                 field.name(),
-                field.boundaryField()[patchI]
+                field.boundaryFieldRef()[patchI]
             );
         }
 
@@ -190,7 +190,7 @@ void conservativeMapSurfaceFields(const topoMapper& mapper)
         fMap.mapInternalField
         (
             field.name(),
-            field.internalField()
+            field.primitiveFieldRef()
         );
 
         // Map patch fields
@@ -199,7 +199,7 @@ void conservativeMapSurfaceFields(const topoMapper& mapper)
             bMap[patchI].mapFvsPatchField
             (
                 field.name(),
-                field.boundaryField()[patchI]
+                field.boundaryFieldRef()[patchI]
             );
         }
 

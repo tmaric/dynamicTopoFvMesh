@@ -254,40 +254,54 @@ public:
         //- Set point weighting information
         void setPointWeights
         (
-            const Xfer<scalarFieldList>& weights,
-            const Xfer<vectorFieldList>& centres
+            // TODO: check, TM.
+            //const Xfer<scalarFieldList>& weights,
+            //const Xfer<vectorFieldList>& centres
+                const scalarFieldList& weights,
+            const vectorFieldList& centres
         ) const;
 
         //- Set face weighting information
         void setFaceWeights
         (
-            const Xfer<scalarFieldList>& weights,
-            const Xfer<vectorFieldList>& centres
+            // TODO: check, TM
+            //const Xfer<scalarFieldList>& weights,
+            //const Xfer<vectorFieldList>& centres
+            const scalarFieldList& weights,
+            const vectorFieldList& centres
         ) const;
 
         //- Set cell weighting information
         void setCellWeights
         (
-            const Xfer<scalarFieldList>& weights,
-            const Xfer<vectorFieldList>& centres
+            // TODO: check, TM
+            //const Xfer<scalarFieldList>& weights,
+            //const Xfer<vectorFieldList>& centres
+            const scalarFieldList& weights,
+            const vectorFieldList& centres
         ) const;
 
         //- Set old patch mesh points information
         void setOldPatchMeshPoints
         (
-            const Xfer<labelListList>& patchMeshPoints
+            // TODO: check, TM
+            //const Xfer<labelListList>& patchMeshPoints
+            const labelListList& patchMeshPoints
         ) const;
 
         //- Set sub mesh map points information
         void setSubMeshMapPointList
         (
-            const Xfer<MapPointList>& subMeshPoints
+            // TODO: check, TM
+            const MapPointList& subMeshPoints
         ) const;
 
         //- Set sub mesh patch map information
         void setSubMeshPatchMaps
         (
-            const Xfer<labelMapLists>& subMeshPatchMaps
+            // TODO: check, TM
+            //const Xfer<labelMapLists>& subMeshPatchMaps
+            const labelMapLists& subMeshPatchMaps
         ) const;
 
         //- Renumber map points after re-ordering

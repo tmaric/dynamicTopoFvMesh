@@ -54,10 +54,9 @@ autoPtr<ePatch> ePatch::New
             << endl;
     }
 
-    wordConstructorTable::iterator cstrIter =
-        wordConstructorTablePtr_->find(patchType);
+    auto* ctorPtr = wordConstructorTable(patchType);
 
-    if (cstrIter == wordConstructorTablePtr_->end())
+    if (!ctorPtr) 
     {
         FatalErrorIn
         (
@@ -70,7 +69,7 @@ autoPtr<ePatch> ePatch::New
             << exit(FatalError);
     }
 
-    return autoPtr<ePatch>(cstrIter()(name, size, start, index, bm));
+    return autoPtr<ePatch>(ctorPtr(name, size, start, index, bm));
 }
 
 
@@ -91,10 +90,9 @@ autoPtr<ePatch> ePatch::New
 
     word patchType(dict.lookup("type"));
 
-    dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(patchType);
+    auto* ctorPtr = dictionaryConstructorTable(patchType);
 
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
+    if (!ctorPtr) 
     {
         FatalIOErrorIn
         (
@@ -107,7 +105,7 @@ autoPtr<ePatch> ePatch::New
             << exit(FatalIOError);
     }
 
-    return autoPtr<ePatch>(cstrIter()(name, dict, index, bm));
+    return autoPtr<ePatch>(ctorPtr(name, dict, index, bm));
 }
 
 

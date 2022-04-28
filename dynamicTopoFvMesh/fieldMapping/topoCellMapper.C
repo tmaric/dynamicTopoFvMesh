@@ -398,13 +398,13 @@ bool topoCellMapper::hasUnmapped() const
 
 
 //- Return direct addressing
-const unallocLabelList& topoCellMapper::directAddressing() const
+const UList<label>& topoCellMapper::directAddressing() const
 {
     if (!direct())
     {
         FatalErrorIn
         (
-            "const unallocLabelList& "
+            "const UList<label>& "
             "topoCellMapper::directAddressing() const"
         )   << "Requested direct addressing for an interpolative mapper."
             << abort(FatalError);

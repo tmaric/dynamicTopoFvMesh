@@ -100,12 +100,12 @@ dynamicTopoFvMesh::dynamicTopoFvMesh(const IOobject& io)
     loadMotionSolver_(true),
     bandWidthReduction_(false),
     coupledModification_(false),
-    lduPtr_(NULL),
+    lduPtr_(nullptr),
     interval_(1),
-    eMeshPtr_(NULL),
-    mapper_(NULL),
-    motionSolver_(NULL),
-    lengthEstimator_(NULL),
+    eMeshPtr_(nullptr),
+    mapper_(nullptr),
+    motionSolver_(nullptr),
+    lengthEstimator_(nullptr),
     oldPoints_(polyMesh::points()),
     points_(polyMesh::points()),
     faces_(polyMesh::faces()),
@@ -185,13 +185,23 @@ dynamicTopoFvMesh::dynamicTopoFvMesh
 (
     const dynamicTopoFvMesh& mesh,
     const IOobject& io,
-    const Xfer<pointField>& points,
-    const Xfer<pointField>& oldPoints,
-    const Xfer<edgeList>& edges,
-    const Xfer<faceList>& faces,
-    const Xfer<labelListList>& faceEdges,
-    const Xfer<labelList>& owner,
-    const Xfer<labelList>& neighbour,
+    // TODO: check, TM.
+    //const Xfer<pointField>& points,
+    //const Xfer<pointField>& oldPoints,
+    //const Xfer<edgeList>& edges,
+    //const Xfer<faceList>& faces,
+    //const Xfer<labelListList>& faceEdges,
+    //const Xfer<labelList>& owner,
+    //const Xfer<labelList>& neighbour,
+    
+    const pointField& points,
+    pointField&& oldPoints,
+    const edgeList& edges,
+    faceList&& faces,
+    const labelListList& faceEdges,
+    labelList&& owner,
+    labelList&& neighbour,
+    
     const labelList& faceStarts,
     const labelList& faceSizes,
     const labelList& edgeStarts,
@@ -203,10 +213,10 @@ dynamicTopoFvMesh::dynamicTopoFvMesh
     dynamicFvMesh
     (
         io,
-        oldPoints,
-        faces,
-        owner,
-        neighbour,
+        std::move(oldPoints),
+        std::move(faces),
+        std::move(owner),
+        std::move(neighbour),
         false
     ),
     baseMesh_(mesh),
@@ -220,14 +230,14 @@ dynamicTopoFvMesh::dynamicTopoFvMesh
     loadMotionSolver_(mesh.loadMotionSolver_),
     bandWidthReduction_(mesh.bandWidthReduction_),
     coupledModification_(false),
-    lduPtr_(NULL),
+    lduPtr_(nullptr),
     interval_(1),
-    eMeshPtr_(NULL),
-    mapper_(NULL),
-    motionSolver_(NULL),
-    lengthEstimator_(NULL),
+    eMeshPtr_(nullptr),
+    mapper_(nullptr),
+    motionSolver_(nullptr),
+    lengthEstimator_(nullptr),
     oldPoints_(polyMesh::points()),
-    points_(points()),
+    points_(points),
     faces_(polyMesh::faces()),
     cells_(polyMesh::cells()),
     edges_(edges),
@@ -455,7 +465,7 @@ void dynamicTopoFvMesh::removeCell
     }
 
     // Remove from cellParents list, if necessary
-    labelHashSet::iterator cpsit = cellParents_.find(cIndex);
+    auto cpsit = cellParents_.find(cIndex);
 
     if (cpsit != cellParents_.end())
     {
@@ -728,7 +738,7 @@ void dynamicTopoFvMesh::removeFace
     }
 
     // Remove from the flipFaces list, if necessary
-    labelHashSet::iterator ffit = flipFaces_.find(fIndex);
+    auto ffit = flipFaces_.find(fIndex);
 
     if (ffit != flipFaces_.end())
     {
@@ -736,7 +746,7 @@ void dynamicTopoFvMesh::removeFace
     }
 
     // Remove from faceParents list, if necessary
-    labelHashSet::iterator fpsit = faceParents_.find(fIndex);
+    auto fpsit = faceParents_.find(fIndex);
 
     if (fpsit != faceParents_.end())
     {
@@ -1680,7 +1690,7 @@ void dynamicTopoFvMesh::calculateLengthScale(bool dump)
         dumpLengthScale = readBool(meshDict.lookup("dumpLengthScale"));
     }
 
-    autoPtr<volScalarField> lsfPtr(NULL);
+    autoPtr<volScalarField> lsfPtr(nullptr);
 
     if (dumpLengthScale && time().outputTime() && dump)
     {
@@ -1718,8 +1728,11 @@ void dynamicTopoFvMesh::calculateLengthScale(bool dump)
     if (dumpLengthScale && time().outputTime() && dump)
     {
         // Obtain length-scale values from the mesh
-        lsfPtr->internalField() = lengthScale_;
-
+        // TODO: check, hackity hack. the resizable<Type> should be replaced with
+        //       "using" declarations. TM
+        scalarField& lsfField = lsfPtr->primitiveFieldRef(); 
+        scalarField& lengthScaleField (lengthScale_);
+        lsfField = lengthScaleField;
         lsfPtr->write();
     }
 }
@@ -2048,7 +2061,7 @@ void dynamicTopoFvMesh::loadMetric()
     const dictionary& meshDict = dict_.subDict("dynamicTopoFvMesh");
 
     // Select an appropriate metric
-    tetMetric_ = tetMetric::New(meshDict, meshDict.lookup("tetMetric"));
+    tetMetric_ = tetMetric::New(meshDict, meshDict.get<word>("tetMetric"));
 }
 
 
@@ -3262,7 +3275,7 @@ void dynamicTopoFvMesh::removeSlivers()
     {
         Switch rs =
         (
-            dict_.subDict("dynamicTopoFvMesh").lookup("removeSlivers")
+            dict_.subDict("dynamicTopoFvMesh").get<Switch>("removeSlivers")
         );
 
         if (!rs)
@@ -4185,11 +4198,11 @@ bool dynamicTopoFvMesh::resetMesh()
 
         // Allocate temporary lists for mesh-reset
         pointField points(nPoints_);
-        pointField preMotionPoints(nPoints_);
+        autoPtr<pointField> preMotionPoints (new pointField(points_));
         edgeList edges(nEdges_);
-        faceList faces(nFaces_);
-        labelList owner(nFaces_);
-        labelList neighbour(nInternalFaces_);
+        autoPtr<faceList> faces(new faceList(nFaces_));
+        autoPtr<labelList> owner(new labelList(nFaces_));
+        autoPtr<labelList> neighbour(new labelList(nInternalFaces_));
         labelListList faceEdges(nFaces_);
         labelListList edgeFaces(nEdges_);
         labelList oldPatchStarts(oldPatchStarts_);
@@ -4212,11 +4225,11 @@ bool dynamicTopoFvMesh::resetMesh()
         reOrderMesh
         (
             points,
-            preMotionPoints,
+            preMotionPoints.ref(),
             edges,
-            faces,
-            owner,
-            neighbour,
+            faces.ref(),
+            owner.ref(),
+            neighbour.ref(),
             faceEdges,
             edgeFaces,
             pointZoneMap,
@@ -4245,35 +4258,35 @@ bool dynamicTopoFvMesh::resetMesh()
         // This takes over the weight data.
         fieldMapper.setPointWeights
         (
-            xferMove(pointWeights_),
-            xferMove(pointCentres_)
+            pointWeights_,
+            pointCentres_
         );
 
         fieldMapper.setFaceWeights
         (
-            xferMove(faceWeights_),
-            xferMove(faceCentres_)
+            faceWeights_,
+            faceCentres_
         );
 
         fieldMapper.setCellWeights
         (
-            xferMove(cellWeights_),
-            xferMove(cellCentres_)
+            cellWeights_,
+            cellCentres_
         );
 
         fieldMapper.setOldPatchMeshPoints
         (
-            xferMove(oldPatchMeshPoints)
+            oldPatchMeshPoints
         );
 
         // Reset the mesh, and specify a non-valid
         // boundary to avoid globalData construction
         polyMesh::resetPrimitives
         (
-            xferCopy(preMotionPoints),
-            xferMove(faces),
-            xferMove(owner),
-            xferMove(neighbour),
+            std::move(preMotionPoints),
+            std::move(faces),
+            std::move(owner),
+            std::move(neighbour),
             patchSizes_,
             patchStarts_,
             false
@@ -4406,7 +4419,7 @@ bool dynamicTopoFvMesh::resetMesh()
             faceZonePointMap,
             faceZoneFaceMap,
             cellZoneMap,
-            preMotionPoints,
+            preMotionPoints.ref(),
             oldPatchStarts,
             oldPatchNMeshPoints,
             oldVolumesField,

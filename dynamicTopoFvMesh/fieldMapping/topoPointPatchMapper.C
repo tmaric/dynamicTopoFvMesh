@@ -533,13 +533,13 @@ bool topoPointPatchMapper::hasUnmapped() const
 
 
 //- Return direct addressing
-const unallocLabelList& topoPointPatchMapper::directAddressing() const
+const UList<label>& topoPointPatchMapper::directAddressing() const
 {
     if (!direct())
     {
         FatalErrorIn
         (
-            "const unallocLabelList& "
+            "const UList<label>& "
             "topoPointPatchMapper::directAddressing() const"
         )   << "Requested direct addressing for an interpolative mapper."
             << abort(FatalError);

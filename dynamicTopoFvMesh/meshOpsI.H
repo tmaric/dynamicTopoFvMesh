@@ -469,7 +469,7 @@ inline void pWrite
 {
     OPstream::write
     (
-        (blocking ? Pstream::blocking : Pstream::nonBlocking),
+        (blocking ? UPstream::commsTypes::blocking : UPstream::commsTypes::nonBlocking),
         toID,
         reinterpret_cast<const char*>(&data),
         sizeof(label)
@@ -487,7 +487,7 @@ inline void pRead
 {
     IPstream::read
     (
-        (blocking ? Pstream::blocking : Pstream::nonBlocking),
+        (blocking ? UPstream::commsTypes::blocking : UPstream::commsTypes::nonBlocking),
         fromID,
         reinterpret_cast<char*>(&data),
         sizeof(label)
@@ -505,7 +505,7 @@ inline void pWrite
 {
     OPstream::write
     (
-        Pstream::blocking,
+        UPstream::commsTypes::blocking,
         toID,
         reinterpret_cast<const char*>(&data[0]),
         Size*sizeof(Type)
@@ -523,7 +523,7 @@ inline void pRead
 {
     IPstream::read
     (
-        Pstream::blocking,
+        UPstream::commsTypes::blocking,
         fromID,
         reinterpret_cast<char*>(data.begin()),
         Size*sizeof(Type)
@@ -541,7 +541,7 @@ inline void pWrite
 {
     OPstream::write
     (
-        Pstream::nonBlocking,
+        UPstream::commsTypes::nonBlocking,
         toID,
         reinterpret_cast<const char*>(&data[0]),
         data.size()*sizeof(Type)
@@ -559,7 +559,7 @@ inline void pRead
 {
     IPstream::read
     (
-        Pstream::nonBlocking,
+        UPstream::commsTypes::nonBlocking,
         fromID,
         reinterpret_cast<char*>(&data[0]),
         data.size()*sizeof(Type)

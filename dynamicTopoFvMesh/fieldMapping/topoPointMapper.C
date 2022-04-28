@@ -230,10 +230,10 @@ topoPointMapper::topoPointMapper
     tMapper_(mapper),
     direct_(false),
     sizeBeforeMapping_(mpm.nOldPoints()),
-    directAddrPtr_(NULL),
-    interpolationAddrPtr_(NULL),
-    weightsPtr_(NULL),
-    insertedPointLabelsPtr_(NULL)
+    directAddrPtr_(nullptr),
+    interpolationAddrPtr_(nullptr),
+    weightsPtr_(nullptr),
+    insertedPointLabelsPtr_(nullptr)
 {
     // Fetch offset sizes from topoMapper
     const labelList& sizes = tMapper_.pointSizes();
@@ -298,7 +298,7 @@ bool topoPointMapper::hasUnmapped() const
 
 
 //- Return direct addressing
-const unallocLabelList& topoPointMapper::directAddressing() const
+const UList<label>& topoPointMapper::directAddressing() const
 {
     if (!direct())
     {

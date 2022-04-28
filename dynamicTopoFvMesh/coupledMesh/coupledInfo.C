@@ -97,7 +97,9 @@ public:
             return true;
         }
 
-        const unallocLabelList& directAddressing() const
+        // TODO: check, TM
+        //const unallocLabelList& directAddressing() const
+        const UList<label>& directAddressing() const
         {
             return directAddressing_;
         }
@@ -164,7 +166,8 @@ public:
             return true;
         }
 
-        const unallocLabelList& directAddressing() const
+        //const unallocLabelList& directAddressing() const
+        const UList<label>& directAddressing() const
         {
             return directAddressing_;
         }
@@ -490,10 +493,10 @@ coupledInfo<MeshType>::subSetPointField
     const labelList& mapper
 ) const
 {
-    typedef typename GeomField::InternalField InternalField;
-    typedef typename GeomField::PatchFieldType PatchFieldType;
-    typedef typename GeomField::GeometricBoundaryField GeomBdyFieldType;
-    typedef typename GeomField::DimensionedInternalField DimInternalField;
+    typedef Field<typename GeomField::value_type> InternalField;
+    typedef typename GeomField::Patch PatchFieldType;
+    typedef typename GeomField::Boundary GeomBdyFieldType;
+    typedef typename GeomField::Internal DimInternalField;
 
     // Fetch the reference to the pointMesh
     const pointMesh& pMesh = pointMesh::New(subMesh());
@@ -565,7 +568,7 @@ coupledInfo<MeshType>::subSetPointField
 
     // Set correct references for patch internal fields,
     // and map values from the supplied geometric field
-    GeomBdyFieldType& bf = subFld().boundaryField();
+    GeomBdyFieldType& bf = subFld().boundaryFieldRef();
 
     forAll(bf, patchI)
     {
@@ -579,7 +582,7 @@ coupledInfo<MeshType>::subSetPointField
                 (
                     emptyType,
                     pMesh.boundary()[patchI],
-                    subFld().dimensionedInternalField()
+                    subFld()()
                 )
             );
         }
@@ -593,7 +596,7 @@ coupledInfo<MeshType>::subSetPointField
                 (
                     processorType,
                     pMesh.boundary()[patchI],
-                    subFld().dimensionedInternalField()
+                    subFld()()
                 )
             );
 
@@ -610,7 +613,7 @@ coupledInfo<MeshType>::subSetPointField
                 (
                     f.boundaryField()[patchI],
                     pMesh.boundary()[patchI],
-                    subFld().dimensionedInternalField(),
+                    subFld()(),
                     subMeshPointMapper(*this, patchI)
                 )
             );
@@ -632,10 +635,10 @@ coupledInfo<MeshType>::subSetField
     const labelList& mapper
 ) const
 {
-    typedef typename GeomField::InternalField InternalField;
-    typedef typename GeomField::PatchFieldType PatchFieldType;
-    typedef typename GeomField::GeometricBoundaryField GeomBdyFieldType;
-    typedef typename GeomField::DimensionedInternalField DimInternalField;
+    typedef Field<typename GeomField::value_type> InternalField;
+    typedef typename GeomField::Patch PatchFieldType;
+    typedef typename GeomField::Boundary GeomBdyFieldType;
+    typedef typename GeomField::Internal DimInternalField;
 
     // Create and map the internal-field values
     InternalField internalField(f.internalField(), mapper);
@@ -704,7 +707,7 @@ coupledInfo<MeshType>::subSetField
 
     // Set correct references for patch internal fields,
     // and map values from the supplied geometric field
-    GeomBdyFieldType& bf = subFld().boundaryField();
+    GeomBdyFieldType& bf = subFld().boundaryFieldRef();
 
     forAll(bf, patchI)
     {
@@ -718,7 +721,7 @@ coupledInfo<MeshType>::subSetField
                 (
                     emptyType,
                     subMesh().boundary()[patchI],
-                    subFld().dimensionedInternalField()
+                    subFld()()
                 )
             );
         }
@@ -732,7 +735,7 @@ coupledInfo<MeshType>::subSetField
                 (
                     processorType,
                     subMesh().boundary()[patchI],
-                    subFld().dimensionedInternalField()
+                    subFld()()
                 )
             );
 
@@ -749,7 +752,7 @@ coupledInfo<MeshType>::subSetField
                 (
                     f.boundaryField()[patchI],
                     subMesh().boundary()[patchI],
-                    subFld().dimensionedInternalField(),
+                    subFld()(),
                     subMeshPatchMapper(*this, patchI)
                 )
             );
@@ -851,10 +854,10 @@ void coupledInfo<MeshType>::setPointField
     PtrList<GeomField>& fields
 ) const
 {
-    typedef typename GeomField::InternalField InternalField;
-    typedef typename GeomField::PatchFieldType PatchFieldType;
-    typedef typename GeomField::GeometricBoundaryField GeomBdyFieldType;
-    typedef typename GeomField::DimensionedInternalField DimInternalField;
+    typedef Field<typename GeomField::value_type> InternalField;
+    typedef typename GeomField::Patch PatchFieldType;
+    typedef typename GeomField::Boundary GeomBdyFieldType;
+    typedef typename GeomField::Internal DimInternalField;
 
     // Size up the pointer list
     fields.setSize(fieldNames.size());
@@ -945,7 +948,7 @@ void coupledInfo<MeshType>::setPointField
 
         // Set correct references for patch internal fields,
         // and fetch values from the supplied geometric field dictionaries
-        GeomBdyFieldType& bf = fields[i].boundaryField();
+        GeomBdyFieldType& bf = fields[i].boundaryFieldRef();
 
         forAll(bf, patchI)
         {
@@ -959,7 +962,7 @@ void coupledInfo<MeshType>::setPointField
                     (
                         emptyType,
                         pMesh.boundary()[patchI],
-                        fields[i].dimensionedInternalField()
+                        fields[i]()
                     )
                 );
             }
@@ -973,7 +976,7 @@ void coupledInfo<MeshType>::setPointField
                     (
                         processorType,
                         pMesh.boundary()[patchI],
-                        fields[i].dimensionedInternalField()
+                        fields[i]()
                     )
                 );
             }
@@ -985,7 +988,7 @@ void coupledInfo<MeshType>::setPointField
                     PatchFieldType::New
                     (
                         pMesh.boundary()[patchI],
-                        fields[i].dimensionedInternalField(),
+                        fields[i](),
                         fieldDicts.subDict
                         (
                             fieldNames[i]
@@ -1012,10 +1015,10 @@ void coupledInfo<MeshType>::setField
     PtrList<GeomField>& fields
 ) const
 {
-    typedef typename GeomField::InternalField InternalField;
-    typedef typename GeomField::PatchFieldType PatchFieldType;
-    typedef typename GeomField::GeometricBoundaryField GeomBdyFieldType;
-    typedef typename GeomField::DimensionedInternalField DimInternalField;
+    typedef Field<typename GeomField::value_type> InternalField;
+    typedef typename GeomField::Patch PatchFieldType;
+    typedef typename GeomField::Boundary GeomBdyFieldType;
+    typedef typename GeomField::Internal DimInternalField;
 
     // Size up the pointer list
     fields.setSize(fieldNames.size());
@@ -1103,7 +1106,7 @@ void coupledInfo<MeshType>::setField
 
         // Set correct references for patch internal fields,
         // and fetch values from the supplied geometric field dictionaries
-        GeomBdyFieldType& bf = fields[i].boundaryField();
+        GeomBdyFieldType& bf = fields[i].boundaryFieldRef();
 
         forAll(bf, patchI)
         {
@@ -1117,7 +1120,7 @@ void coupledInfo<MeshType>::setField
                     (
                         emptyType,
                         subMesh().boundary()[patchI],
-                        fields[i].dimensionedInternalField()
+                        fields[i].internalField()
                     )
                 );
             }
@@ -1131,7 +1134,7 @@ void coupledInfo<MeshType>::setField
                     (
                         processorType,
                         subMesh().boundary()[patchI],
-                        fields[i].dimensionedInternalField()
+                        fields[i].internalField()
                     )
                 );
             }
@@ -1143,7 +1146,7 @@ void coupledInfo<MeshType>::setField
                     PatchFieldType::New
                     (
                         subMesh().boundary()[patchI],
-                        fields[i].dimensionedInternalField(),
+                        fields[i].internalField(),
                         fieldDicts.subDict
                         (
                             fieldNames[i]
@@ -1203,7 +1206,7 @@ void coupledInfo<MeshType>::resizeMap
 )
 {
     typedef GeometricField<Type, Patch, Mesh> GeomFieldType;
-    typedef typename GeomFieldType::PatchFieldType PatchFieldType;
+    typedef typename GeomFieldType::Patch PatchFieldType;
 
     // autoMap the internal field
     field.internalField().autoMap(internalMapper);
@@ -1224,7 +1227,7 @@ void coupledInfo<MeshType>::resizeMap
     // Map physical boundary-fields
     forAll(boundaryMapper, patchI)
     {
-        PatchFieldType& patchField = field.boundaryField()[patchI];
+        PatchFieldType& patchField = field.boundaryFieldRef()[patchI];
 
         // Optionally resize empty fields temporarily
         EmptyResize<Type, Patch>()
@@ -1301,8 +1304,8 @@ void coupledInfo<MeshType>::resizeBoundaries
     const fvBoundaryMesh& boundary
 )
 {
-    typedef typename GeomField::PatchFieldType PatchFieldType;
-    typedef typename GeomField::GeometricBoundaryField GeomBoundaryType;
+    typedef typename GeomField::Patch PatchFieldType;
+    typedef typename GeomField::Boundary GeomBoundaryType;
 
     HashTable<const GeomField*> fields(mesh.lookupClass<GeomField>());
 
@@ -1311,7 +1314,7 @@ void coupledInfo<MeshType>::resizeBoundaries
         // Fetch field from registry
         GeomField& field = const_cast<GeomField&>(*fIter());
 
-        GeomBoundaryType& bf = field.boundaryField();
+        GeomBoundaryType& bf = field.boundaryFieldRef();
 
         // Resize boundary
         label nPatches = boundary.size();

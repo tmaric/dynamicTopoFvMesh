@@ -142,7 +142,7 @@ void PoissonCorrector::interpolateFluxes(const labelList& faces) const
         tmp<surfaceScalarField> tphiU = fvc::interpolate(U) & Sf;
 
         // Alias for convenience
-        surfaceScalarField& phiU = tphiU();
+        surfaceScalarField& phiU = tphiU.ref();
 
         phiU.rename("phiU");
 
@@ -157,7 +157,7 @@ void PoissonCorrector::interpolateFluxes(const labelList& faces) const
             {
                 if (U.boundaryField()[patchi].fixesValue())
                 {
-                    U.boundaryField()[patchi].initEvaluate();
+                    U.boundaryFieldRef()[patchi].initEvaluate();
                 }
             }
 
@@ -165,9 +165,9 @@ void PoissonCorrector::interpolateFluxes(const labelList& faces) const
             {
                 if (U.boundaryField()[patchi].fixesValue())
                 {
-                    U.boundaryField()[patchi].evaluate();
+                    U.boundaryFieldRef()[patchi].evaluate();
 
-                    phi.boundaryField()[patchi] =
+                    phi.boundaryFieldRef()[patchi] =
                     (
                         U.boundaryField()[patchi] & Sf.boundaryField()[patchi]
                     );

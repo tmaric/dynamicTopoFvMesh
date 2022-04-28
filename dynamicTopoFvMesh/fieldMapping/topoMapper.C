@@ -74,9 +74,9 @@ void topoMapper::storeGradients() const
 //- Store geometric information
 void topoMapper::storeGeometry() const
 {
-    typedef volVectorField::PatchFieldType PatchFieldType;
-    typedef volVectorField::GeometricBoundaryField GeomBdyFieldType;
-    typedef volVectorField::DimensionedInternalField DimInternalField;
+    typedef volVectorField::Patch PatchFieldType;
+    typedef volVectorField::Boundary GeomBdyFieldType;
+    typedef volVectorField::Internal DimInternalField;
 
     // Wipe out existing information
     deleteDemandDrivenData(cellCentresPtr_);
@@ -150,7 +150,7 @@ void topoMapper::storeGeometry() const
     volVectorField& centres = *cellCentresPtr_;
 
     // Set correct references for patch internal fields
-    GeomBdyFieldType& bf = centres.boundaryField();
+    GeomBdyFieldType& bf = centres.boundaryFieldRef();
 
     forAll(bf, patchI)
     {
@@ -163,7 +163,7 @@ void topoMapper::storeGeometry() const
                 (
                     emptyType,
                     mesh_.boundary()[patchI],
-                    centres.dimensionedInternalField()
+                    centres.internalField()
                 )
             );
         }
@@ -176,12 +176,12 @@ void topoMapper::storeGeometry() const
                 (
                     fixedValueType,
                     mesh_.boundary()[patchI],
-                    centres.dimensionedInternalField()
+                    centres.internalField()
                 )
             );
 
             // Slice field to patch (forced assignment)
-            bf[patchI] == mesh_.boundaryMesh()[patchI].patchSlice(Cf);
+            bf[patchI].operator==(mesh_.boundaryMesh()[patchI].patchSlice(Cf));
         }
     }
 
@@ -202,14 +202,14 @@ topoMapper::topoMapper
 :
     mesh_(mesh),
     dict_(dict),
-    cellMap_(NULL),
-    pointMap_(NULL),
-    surfaceMap_(NULL),
-    boundaryMap_(NULL),
-    pointBoundaryMap_(NULL),
+    cellMap_(nullptr),
+    pointMap_(nullptr),
+    surfaceMap_(nullptr),
+    boundaryMap_(nullptr),
+    pointBoundaryMap_(nullptr),
     fluxCorrector_(fluxCorrector::New(mesh, dict)),
-    cellVolumesPtr_(NULL),
-    cellCentresPtr_(NULL),
+    cellVolumesPtr_(nullptr),
+    cellCentresPtr_(nullptr),
     disableGradients_(disableGradients)
 {}
 
@@ -295,66 +295,80 @@ void topoMapper::setMapper(const mapPolyMesh& mpm) const
 //- Set point weighting information
 void topoMapper::setPointWeights
 (
-    const Xfer<scalarFieldList>& weights,
-    const Xfer<vectorFieldList>& centres
+    // TODO: Check, TM
+    //const Xfer<scalarFieldList>& weights,
+    //const Xfer<vectorFieldList>& centres
+    const scalarFieldList& weights,
+    const vectorFieldList& centres
 ) const
 {
-    pointWeights_.transfer(weights());
-    pointCentres_.transfer(centres());
+    pointWeights_ = weights;
+    pointCentres_ = centres;
 }
 
 
 //- Set face weighting information
 void topoMapper::setFaceWeights
 (
-    const Xfer<scalarFieldList>& weights,
-    const Xfer<vectorFieldList>& centres
+    // TODO: Check, TM
+    //const Xfer<scalarFieldList>& weights,
+    //const Xfer<vectorFieldList>& centres
+    const scalarFieldList& weights,
+    const vectorFieldList& centres
 ) const
 {
-    faceWeights_.transfer(weights());
-    faceCentres_.transfer(centres());
+    faceWeights_ = weights;
+    faceCentres_ = centres;
 }
-
 
 //- Set cell weighting information
 void topoMapper::setCellWeights
 (
-    const Xfer<scalarFieldList>& weights,
-    const Xfer<vectorFieldList>& centres
+    // TODO: check, TM
+    //const Xfer<scalarFieldList>& weights,
+    //const Xfer<vectorFieldList>& centres
+    const scalarFieldList& weights,
+    const vectorFieldList& centres
 ) const
 {
-    cellWeights_.transfer(weights());
-    cellCentres_.transfer(centres());
+    cellWeights_ = weights;
+    cellCentres_ = centres;
 }
 
 
 //- Set old patch mesh points information
 void topoMapper::setOldPatchMeshPoints
 (
-    const Xfer<labelListList>& patchMeshPoints
+    // TODO: check, TM
+    //const Xfer<labelListList>& patchMeshPoints
+    const labelListList& patchMeshPoints
 ) const
 {
-    oldPatchMeshPoints_.transfer(patchMeshPoints());
+    oldPatchMeshPoints_ = patchMeshPoints;
 }
 
 
 //- Set sub mesh map points information
 void topoMapper::setSubMeshMapPointList
 (
-    const Xfer<MapPointList>& subMeshPoints
+    // TODO: check, TM
+    //const Xfer<MapPointList>& subMeshPoints
+    const MapPointList& subMeshPoints
 ) const
 {
-    subMeshMapPointList_.transfer(subMeshPoints());
+    subMeshMapPointList_ = subMeshPoints;
 }
 
 
 //- Set sub mesh patch map information
 void topoMapper::setSubMeshPatchMaps
 (
-    const Xfer<labelMapLists>& subMeshPatchMaps
+    // TODO: check, TM
+    //const Xfer<labelMapLists>& subMeshPatchMaps
+    const labelMapLists& subMeshPatchMaps
 ) const
 {
-    subMeshPatchMaps_.transfer(subMeshPatchMaps());
+    subMeshPatchMaps_ = subMeshPatchMaps;
 }
 
 

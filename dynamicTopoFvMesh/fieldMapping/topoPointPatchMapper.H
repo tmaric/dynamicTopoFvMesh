@@ -154,7 +154,7 @@ public:
         virtual bool hasUnmapped() const;
 
         //- Return direct addressing
-        virtual const unallocLabelList& directAddressing() const;
+        virtual const UList<label>& directAddressing() const;
 
         //- Return interpolated addressing
         virtual const labelListList& addressing() const;

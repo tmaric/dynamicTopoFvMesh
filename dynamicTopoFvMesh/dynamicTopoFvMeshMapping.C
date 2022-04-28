@@ -623,7 +623,9 @@ void dynamicTopoFvMesh::threadedMapping
     cellCentres_.setSize(nCellsFromCells, vectorField(0));
 
     // Set subMesh point mapping
-    mapper_->setSubMeshMapPointList(xferMove(subMeshPoints));
+    // TODO: check, TM
+    //mapper_->setSubMeshMapPointList(xferMove(subMeshPoints));
+    mapper_->setSubMeshMapPointList(subMeshPoints);
 
     // Convex-set algorithm for points
     pointSetAlgorithm pointAlgorithm

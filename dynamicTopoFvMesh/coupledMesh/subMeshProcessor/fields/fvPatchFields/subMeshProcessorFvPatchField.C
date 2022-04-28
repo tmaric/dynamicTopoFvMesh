@@ -24,6 +24,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "error.H"
 #include "subMeshProcessorFvPatchField.H"
 
 // * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * * //
@@ -156,63 +157,11 @@ Foam::subMeshProcessorFvPatchField<Type>::snGrad
     return deltaCoeffs * (*this - this->patchInternalField());
 }
 
-
 // Is all data available
 template<class Type>
 bool Foam::subMeshProcessorFvPatchField<Type>::ready() const
 {
     return true;
 }
-
-
-// Initialise neighbour matrix update
-template<class Type>
-void Foam::subMeshProcessorFvPatchField<Type>::initInterfaceMatrixUpdate
-(
-    scalarField&,
-    const scalarField& psiInternal,
-    const scalarField&,
-    const direction,
-    const Pstream::commsTypes commsType
-) const
-{}
-
-
-// Update result field based on interface functionality
-template<class Type>
-void Foam::subMeshProcessorFvPatchField<Type>::updateInterfaceMatrix
-(
-    scalarField& result,
-    const scalarField&,
-    const scalarField& coeffs,
-    const direction cmpt,
-    const Pstream::commsTypes commsType
-) const
-{}
-
-
-// Initialise neighbour matrix update
-template<class Type>
-void Foam::subMeshProcessorFvPatchField<Type>::initInterfaceMatrixUpdate
-(
-    Field<Type>&,
-    const Field<Type>& psiInternal,
-    const scalarField&,
-    const Pstream::commsTypes commsType
-) const
-{}
-
-
-// Update result field based on interface functionality
-template<class Type>
-void Foam::subMeshProcessorFvPatchField<Type>::updateInterfaceMatrix
-(
-    Field<Type>& result,
-    const Field<Type>&,
-    const scalarField& coeffs,
-    const Pstream::commsTypes commsType
-) const
-{}
-
 
 // ************************************************************************* //

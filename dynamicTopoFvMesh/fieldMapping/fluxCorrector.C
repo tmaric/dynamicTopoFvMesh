@@ -68,22 +68,11 @@ autoPtr<fluxCorrector> fluxCorrector::New
             meshConstructorTablePtr_
         );
 
-        if (!meshConstructorTablePtr_)
-        {
-            FatalErrorIn
-            (
-                "autoPtr<fluxCorrector> fluxCorrector::New"
-                "(const fvMesh& mesh, const dictionary& dict)"
-            )   << "fluxCorrector table is empty"
-                << exit(FatalError);
-        }
-
         correctorTypeName = word(dict.lookup("fluxCorrector"));
 
-        meshConstructorTable::iterator cstrIter =
-            meshConstructorTablePtr_->find(correctorTypeName);
+        auto* ctorPtr = meshConstructorTable(correctorTypeName);
 
-        if (cstrIter == meshConstructorTablePtr_->end())
+        if (!ctorPtr) 
         {
             FatalErrorIn
             (
@@ -96,7 +85,7 @@ autoPtr<fluxCorrector> fluxCorrector::New
                 << exit(FatalError);
         }
 
-        return autoPtr<fluxCorrector>(cstrIter()(mesh, dict));
+        return autoPtr<fluxCorrector>(ctorPtr(mesh, dict));
     }
 
     // Return the default fluxCorrector

@@ -1,10 +1,15 @@
 EXE_INC = \
+    -fpermissive \
+    -Wno-deprecated \
+    -Wno-deprecated-declarations \
+    -Wno-deprecated-copy \
+    -Wno-maybe-uninitialized \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicFvMesh/dynamicFvMesh \
     -I$(LIB_SRC)/dynamicMesh/fvMeshDistribute \
     -I$(LIB_SRC)/parallel/decompose/decompositionMethods/lnInclude \
-    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude 
 
 LIB_LIBS = \
     -ldynamicMesh \

@@ -170,8 +170,11 @@ class dynamicTopoFvMesh
         class resizable
         {
         public:
-            typedef DynamicList<T, 0, 11, 10> ListType;
-            typedef DynamicField<T, 0, 11, 10> FieldType;
+            // TODO: Unused DynamicList parameters. Optimize for efficiency later. TM.
+            //typedef DynamicList<T, 0, 11, 10> ListType;
+            //typedef DynamicField<T, 0, 11, 10> FieldType;
+            typedef DynamicList<T> ListType;
+            typedef DynamicField<T> FieldType;
         };
 
         resizable<point>::FieldType oldPoints_, points_;
@@ -181,7 +184,7 @@ class dynamicTopoFvMesh
         resizable<edge>::ListType edges_;
         resizable<labelList>::ListType pointEdges_;
         resizable<labelList>::ListType edgeFaces_, faceEdges_;
-        resizable<scalar>::ListType lengthScale_;
+        resizable<scalar>::FieldType lengthScale_;
         resizable<label>::ListType boundaryPoints_;
 
         //- Size information
@@ -309,13 +312,24 @@ class dynamicTopoFvMesh
         (
             const dynamicTopoFvMesh& mesh,
             const IOobject& io,
-            const Xfer<pointField>& points,
-            const Xfer<pointField>& oldPoints,
-            const Xfer<edgeList>& edges,
-            const Xfer<faceList>& faces,
-            const Xfer<labelListList>& faceEdges,
-            const Xfer<labelList>& owner,
-            const Xfer<labelList>& neighbour,
+            // TODO: check, TM.
+            //const Xfer<pointField>& points,
+            //const Xfer<pointField>& oldPoints,
+            //const Xfer<edgeList>& edges,
+            //const Xfer<faceList>& faces,
+            //const Xfer<labelListList>& faceEdges,
+            //const Xfer<labelList>& owner,
+            //const Xfer<labelList>& neighbour,
+
+            const pointField& points,
+            pointField&& oldPoints,
+            const edgeList& edges,
+            faceList&& faces,
+            const labelListList& faceEdges,
+            labelList&& owner,
+            labelList&& neighbour,
+
+
             const labelList& faceStarts,
             const labelList& faceSizes,
             const labelList& edgeStarts,

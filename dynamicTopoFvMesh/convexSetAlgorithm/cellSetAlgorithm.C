@@ -455,30 +455,32 @@ bool cellSetAlgorithm::computeIntersection
             {
                 if (output)
                 {
-                    writeVTK
-                    (
-                        "tetIntersectNew_"
-                      + Foam::name(newIndex),
-                        List<TetPoints>(1, clippingTet)
-                    );
+                    // TODO: port.  TM
+                    
+                    //writeVTK
+                    //(
+                        //"tetIntersectNew_"
+                      //+ Foam::name(newIndex),
+                        //List<TetPoints>(1, clippingTet)
+                    //);
 
-                    writeVTK
-                    (
-                        "tetIntersectOld_"
-                      + Foam::name(newIndex)
-                      + '_'
-                      + Foam::name(oldIndex),
-                        List<TetPoints>(1, subjectTet)
-                    );
+                    //writeVTK
+                    //(
+                        //"tetIntersectOld_"
+                      //+ Foam::name(newIndex)
+                      //+ '_'
+                      //+ Foam::name(oldIndex),
+                        //List<TetPoints>(1, subjectTet)
+                    //);
 
-                    writeVTK
-                    (
-                        "tetIntersect_"
-                      + Foam::name(newIndex)
-                      + '_'
-                      + Foam::name(oldIndex),
-                        intersector.getIntersection()
-                    );
+                    //writeVTK
+                    //(
+                        //"tetIntersect_"
+                      //+ Foam::name(newIndex)
+                      //+ '_'
+                      //+ Foam::name(oldIndex),
+                        //intersector.getIntersection()
+                    //);
                 }
 
                 // Size-up the internal lists

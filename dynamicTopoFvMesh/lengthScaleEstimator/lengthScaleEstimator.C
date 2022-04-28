@@ -315,7 +315,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
             // First perform a blocking send/receive of the number of faces.
             OPstream::write
             (
-                Pstream::nonBlocking,
+                UPstream::commsTypes::nonBlocking,
                 neiProcNo,
                 reinterpret_cast<const char*>(&(nSendFaces[pI])),
                 sizeof(label)
@@ -323,7 +323,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
             IPstream::read
             (
-                Pstream::nonBlocking,
+                UPstream::commsTypes::nonBlocking,
                 neiProcNo,
                 reinterpret_cast<char*>(&(nRecvFaces[pI])),
                 sizeof(label)
@@ -362,7 +362,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
             {
                 OPstream::write
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<const char*>(&(sendLblBuffer_[patchI][0])),
                     sendLblBuffer_[patchI].size()*sizeof(label)
@@ -370,7 +370,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
                 OPstream::write
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<const char*>(&(sendLvlBuffer_[patchI][0])),
                     sendLblBuffer_[patchI].size()*sizeof(label)
@@ -378,7 +378,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
                 OPstream::write
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<const char*>(&(sendSclBuffer_[patchI][0])),
                     sendSclBuffer_[patchI].size()*sizeof(scalar)
@@ -394,7 +394,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
                 IPstream::read
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<char*>(&(recvLblBuffer_[patchI][0])),
                     nRecvFaces[patchI]*sizeof(label)
@@ -402,7 +402,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
                 IPstream::read
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<char*>(&(recvLvlBuffer_[patchI][0])),
                     nRecvFaces[patchI]*sizeof(label)
@@ -410,7 +410,7 @@ void lengthScaleEstimator::writeLengthScaleInfo
 
                 IPstream::read
                 (
-                    Pstream::nonBlocking,
+                    UPstream::commsTypes::nonBlocking,
                     neiProcNo,
                     reinterpret_cast<char*>(&(recvSclBuffer_[patchI][0])),
                     nRecvFaces[patchI]*sizeof(scalar)
@@ -542,8 +542,7 @@ void lengthScaleEstimator::readLengthScaleInfo
                 {
                     sumLength *= growthFactor_;
                 }
-                else
-                if (meanScale_ > 0.0)
+                else if (meanScale_ > 0.0)
                 {
                     // If a mean scale has been specified,
                     // override the value
@@ -1334,8 +1333,7 @@ void lengthScaleEstimator::calculateLengthScale
                     {
                         sumLength *= growthFactor_;
                     }
-                    else
-                    if (meanScale_ > 0.0)
+                    else if (meanScale_ > 0.0)
                     {
                         // If a mean scale has been specified,
                         // override the value
